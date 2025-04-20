@@ -1,63 +1,65 @@
 {% extends 'events/base.html' %}
 
 {% block content %}
-	<center>
-	<h1>Hello {{ name }}! Jobs For {{ month }} {{ year }}</h1>
 
-	As of {{ time }}
-	<br/><br/>
-	{{ cal|safe }}
-	<br/><br/>
-</center>
-	<h3>Jobs this month</h3>
-
-	{% if event_list %}
-		{% for event in event_list %}
-		<div class="card">
-  <div class="card-header">
-    {{ event }}
+<!-- Notifications -->
+{% if notifications %}
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">Reminders</h4>
+    <ul class="mb-0">
+      {% for note in notifications %}
+      <li>{{ note }}</li>
+      {% endfor %}
+    </ul>
   </div>
-  <div class="card-body">
-    <h5 class="card-title">Venue: {{ event.venue }}</h5>
-    <p class="card-text">
-    	<ul>
-<li>Date: {{ event.event_date }}</li>
+{% endif %}
 
-<li>Venue Website: {{ event.venue.web }}</li>
-<li>Manager: {{ event.manager }}</li>
-<li>Description: {{ event.description }}</li>
-	<li>Attendees:<br/>
-	{% for user in event.attendees.all %}
-{{ user }}<br/>
-	{% endfor %}
-	</li>
-	</ul>
-
-
-
-    </p>
-  </div>
-  {% if user.is_authenticated %}
-    {% if user == event.manager %}
-      <div class="card-footer text-muted">
-        
-        <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Jobt</a>
-
-        <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Jobt</a>
-        
-      </div>
-    {% endif %}  
-  {% endif %}
+<div class="text-center">
+  <h1>Hello {{ user.first_name|default:user.username }}! Jobs For {{ month }} {{ year }}</h1>
+  <p>As of {{ time }}</p>
+  <br/>
+  {{ cal|safe }}
+  <br/><br/>
 </div>
-		<br/>
-		{% endfor %}
 
-	{% else %}
-	Sorry...There are no jobs this month... {% endif %}
+<h3>Jobs this month</h3>
 
-	<center>
-	<br/><br/><br/><br/>
-	Copyright (c) {{ current_year }}
+{% if event_list %}
+  {% for event in event_list %}
+    <div class="card mb-3">
+      <div class="card-header">
+        {{ event }}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Job: {{ event.venue }}</h5>
+        <ul class="list-unstyled">
+          <li><strong>Date:</strong> <time datetime="{{ event.event_date|date:'Y-m-d' }}">{{ event.event_date|date:'F j, Y' }}</time></li>
+          <li><strong>Job location:</strong> <a href="{{ event.venue.web }}">{{ event.venue.web }}</a></li>
+          <li><strong>Manager:</strong> {{ event.manager }}</li>
+          <li><strong>Description:</strong> {{ event.description }}</li>
+          <li><strong>Employees:</strong><br/>
+            {% for user in event.attendees.all %}
+              {{ user }}<br/>
+            {% endfor %}
+          </li>
+        </ul>
+      </div>
 
-	</center>
+      {% if user.is_authenticated and user == event.manager %}
+        <div class="card-footer text-muted">
+          <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Job</a>
+          <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Job</a>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% else %}
+  <p>Sorry... There are no jobs this month.</p>
+{% endif %}
+
+<div class="text-center mt-5">
+  <br/><br/><br/><br/>
+  <p>&copy; {{ current_year }}</p>
+</div>
+
 {% endblock %}

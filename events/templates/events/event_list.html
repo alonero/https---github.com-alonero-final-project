@@ -1,60 +1,96 @@
 {% extends 'events/base.html' %}
 
 {% block content %}
-	
-	<h1>Jobs</h1>
-	<br/>
-	
-{% for event in event_list %}
-{% if event.approved %}
-<div class="card">
-  <div class="card-header">
-    {{ event }}
-  </div>
-  <div class="card-body">
-    <h5 class="card-title">Venue: {{ event.venue }}</h5>
-    <p class="card-text">
-    	<ul>
-<li>Date: {{ event.event_date }}</li>
-<li>Days Till Event: {{ event.Days_till }}</li>
-<li>Occured: {{ event.Is_Past}}</li>
-<li>Venue Website: {{ event.venue.web }}</li>
-<li>Manager: {{ event.manager }}</li>
-<li>Description: {{ event.description }}</li>
-<li>Approved: {{ event.approved }}</li>
-	<li>Attendees:<br/>
-	{% for user in event.attendees.all %}
-{{ user }}<br/>
-  
-  {% endfor %}
+    <h1>Job</h1>
 
-	</li>
-	</ul>
+    <!-- Filter and Sort Form -->
+    <form method="get" class="mb-4">
+        <!-- Sort By Field -->
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort">
+            <option value="event_date" {% if request.GET.sort == 'event_date' %}selected{% endif %}>Due Date</option>
+            <option value="-event_date" {% if request.GET.sort == '-event_date' %}selected{% endif %}>Due Date (Newest First)</option>
+            <option value="venue" {% if request.GET.sort == 'venue' %}selected{% endif %}>jobs</option>
+            <option value="manager" {% if request.GET.sort == 'manager' %}selected{% endif %}>Manager</option>
+        </select>
 
+        <!-- Category Filter -->
+        <label for="category">Category:</label>
+        <select name="category" id="category">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
 
+        <!-- Filter by Status (Approved/Not) -->
+        <label for="approved">Status:</label>
+        <select name="approved" id="approved">
+            <option value="">All Status</option>
+            <option value="True" {% if request.GET.approved == 'True' %}selected{% endif %}>Approved</option>
+            <option value="False" {% if request.GET.approved == 'False' %}selected{% endif %}>Not Approved</option>
+        </select>
 
-    </p>
-  </div>
-  {% if user.is_authenticated %}
-    {% if user == event.manager %}
-      <div class="card-footer text-muted">
-        
-        <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update task</a>
+        <!-- Filter by Manager -->
+        <label for="manager">Manager:</label>
+        <select name="manager" id="manager">
+            <option value="">All Managers</option>
+            {% for manager in managers %}
+                <option value="{{ manager.id }}" {% if request.GET.manager == manager.id|stringformat:"s" %}selected{% endif %}>{{ manager }}</option>
+            {% endfor %}
+        </select>
 
-        <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete task</a>
-        
-      </div>
-    {% endif %}  
-  {% endif %}
-</div>
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    </form>
 
+    <!-- Event List -->
+    {% for event in event_list %}
+        <div class="card">
+            <div class="card-header">
+                {{ event }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Job: {{ event.venue }}</h5>
+                <ul>
+                    <li>Date: {{ event.event_date }}</li>
+                    <li>Days Till Job: {{ event.Days_till }}</li>
+                    <li>Job Location: {{ event.venue.web }}</li>
+                    <li>Manager: {{ event.manager }}</li>
+                    <li>Description: {{ event.description }}</li>
+                    <li>Ready: {{ event.approved }}</li>
+                    <li>Employees:
+                        <br/>
+                        {% for user in event.attendees.all %}
+                            {{ user }}<br/>
+                        {% endfor %}
+                    </li>
+                </ul>
+            </div>
+            {% if user.is_authenticated and user == event.manager %}
+                <div class="card-footer text-muted">
+                    <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Job</a>
+                    <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Job</a>
+                </div>
+            {% endif %}
+        </div>
+        <br/><br/>
+    {% endfor %}
 
+    <!-- Pagination -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if event_list.has_previous %}
+                <a href="?page=1{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.approved %}&approved={{ request.GET.approved }}{% endif %}{% if request.GET.manager %}&manager={{ request.GET.manager }}{% endif %}">&laquo; first</a>
+                <a href="?page={{ event_list.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.approved %}&approved={{ request.GET.approved }}{% endif %}{% if request.GET.manager %}&manager={{ request.GET.manager }}{% endif %}">previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ event_list.number }} of {{ event_list.paginator.num_pages }}.
+            </span>
+            {% if event_list.has_next %}
+                <a href="?page={{ event_list.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.approved %}&approved={{ request.GET.approved }}{% endif %}{% if request.GET.manager %}&manager={{ request.GET.manager }}{% endif %}">next</a>
+                <a href="?page={{ event_list.paginator.num_pages }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.approved %}&approved={{ request.GET.approved }}{% endif %}{% if request.GET.manager %}&manager={{ request.GET.manager }}{% endif %}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 
-<br/><br/>
-{% endif %}
-
-{% endfor %}
-
-
-	
 {% endblock %}

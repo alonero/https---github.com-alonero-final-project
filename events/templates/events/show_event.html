@@ -2,7 +2,7 @@
 
 {% block content %}
 	
-<h1>Show Event</h1>
+<h1>Show Job</h1>
 
 <br/>
 	
@@ -12,17 +12,17 @@
     {{ event }}
   </div>
   <div class="card-body">
-    <h5 class="card-title">Venue: {{ event.venue }}</h5>
+    <h5 class="card-title">Job: {{ event.venue }}</h5>
     <p class="card-text">
     	<ul>
 <li>Date: {{ event.event_date }}</li>
 <li>Days Till Event: {{ event.Days_till }}</li>
 <li>Occured: {{ event.Is_Past}}</li>
-<li>Venue Website: {{ event.venue.web }}</li>
+<li>Job Location: {{ event.venue.web }}</li>
 <li>Manager: {{ event.manager }}</li>
 <li>Description: {{ event.description }}</li>
 <li>Approved: {{ event.approved }}</li>
-	<li>Attendees:<br/>
+	<li>Employees:<br/>
 	{% for user in event.attendees.all %}
 {{ user }}<br/>
   
@@ -39,9 +39,9 @@
     {% if user == event.manager %}
       <div class="card-footer text-muted">
         
-        <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Event</a>
+        <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Job</a>
 
-        <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Event</a>
+        <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Job</a>
         
       </div>
     {% endif %}  

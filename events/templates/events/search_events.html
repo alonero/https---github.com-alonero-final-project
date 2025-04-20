@@ -35,10 +35,10 @@
     	<ul>
 <li>Date: {{ event.event_date }}</li>
 
-<li>Venue Website: {{ event.venue.web }}</li>
+<li>Job Location: {{ event.venue.web }}</li>
 <li>Manager: {{ event.manager }}</li>
 <li>Description: {{ event.description }}</li>
-	<li>Attendees:<br/>
+	<li>Employees:<br/>
 	{% for user in event.attendees.all %}
 {{ user }}<br/>
 	{% endfor %}
@@ -53,9 +53,9 @@
     {% if user == event.manager %}
       <div class="card-footer text-muted">
         
-        <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Task</a>
+        <a href="{% url 'update-event' event.id %}" class="btn btn-outline-secondary btn-sm">Update Job</a>
 
-        <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Task</a>
+        <a href="{% url 'delete-event' event.id %}" class="btn btn-outline-danger btn-sm">Delete Job</a>
         
       </div>
     {% endif %}  

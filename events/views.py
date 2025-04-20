@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 import calendar
 from calendar import HTMLCalendar
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import HttpResponseRedirect
 from .models import Event, Venue
+from django.utils import timezone
 # Import User Model From Django
 from django.contrib.auth.models import User
 from .forms import VenueForm, EventForm, EventFormAdmin
@@ -202,10 +203,10 @@ def delete_event(request, event_id):
 	event = Event.objects.get(pk=event_id)
 	if request.user == event.manager:
 		event.delete()
-		messages.success(request, ("Event Deleted!!"))
+		messages.success(request, ("Job Deleted!!"))
 		return redirect('list-events')		
 	else:
-		messages.success(request, ("You Aren't Authorized To Delete This Event!"))
+		messages.success(request, ("You Aren't Authorized To Delete This Job!"))
 		return redirect('list-events')		
 
 def add_event(request):
@@ -339,44 +340,75 @@ def add_venue(request):
 	return render(request, 'events/add_venue.html', {'form':form, 'submitted':submitted})
 
 def all_events(request):
-	event_list = Event.objects.all().order_by('-event_date')
-	return render(request, 'events/event_list.html', 
-		{'event_list': event_list})
+    sort = request.GET.get('sort', 'event_date')  # default sorting
+    category = request.GET.get('category', '')    # optional category filter
+
+    event_list = Event.objects.all()
+
+    if category:
+        event_list = event_list.filter(category=category)
+
+    event_list = event_list.order_by(sort)
+
+    # Pagination
+    p = Paginator(event_list, 5)  # Adjust items per page if needed
+    page = request.GET.get('page')
+    events = p.get_page(page)
+
+    # Get unique categories for the filter dropdown
+    categories = Event.objects.values_list('category', flat=True).distinct()
+
+    return render(request, 'events/event_list.html', {
+        'event_list': events,
+        'categories': categories,
+    })
+
 
 
 def home(request, year=datetime.now().year, month=datetime.now().strftime('%B')):
-	name = "John"
-	month = month.capitalize()
-	# Convert month from name to number
-	month_number = list(calendar.month_name).index(month)
-	month_number = int(month_number)
+    name = "John"
+    month = month.capitalize()
 
-	# create a calendar
-	cal = HTMLCalendar().formatmonth(
-		year, 
-		month_number)
-	# Get current year
-	now = datetime.now()
-	current_year = now.year
-	
-	# Query the Events Model For Dates
-	event_list = Event.objects.filter(
-		event_date__year = year,
-		event_date__month = month_number
-		)
+    # Convert month name to number
+    month_number = list(calendar.month_name).index(month)
 
-	# Get current time
-	time = now.strftime('%I:%M %p')
-	return render(request, 
-		'events/home.html', {
-		"name": name,
-		"year": year,
-		"month": month,
-		"month_number": month_number,
-		"cal": cal,
-		"current_year": current_year,
-		"time":time,
-		"event_list": event_list,
-		})
+    # Create a calendar
+    cal = HTMLCalendar().formatmonth(year, month_number)
 
+    # Get timezone-aware current time
+    now = timezone.now()
+    current_year = now.year
+    time = now.strftime('%I:%M %p')
 
+    # Events in the given month
+    event_list = Event.objects.filter(
+        event_date__year=year,
+        event_date__month=month_number
+    )
+
+    # Generate notifications
+    notifications = []
+    upcoming_deadline = now + timedelta(days=3)
+
+    for event in event_list:
+        event_datetime = timezone.localtime(event.event_date) if timezone.is_aware(event.event_date) else event.event_date
+        if event_datetime <= upcoming_deadline:
+            notifications.append(f"Upcoming job '{event}' on {event_datetime.strftime('%b %d')}!")
+        if not event.description:
+            notifications.append(f"The job '{event}' is missing a description.")
+        if not event.attendees.exists():
+            notifications.append(f"No employees assigned for '{event}'.")
+
+    # Return everything to the template
+    return render(request, 'events/home.html', {
+        "name": name,
+        "year": year,
+        "month": month,
+        "month_number": month_number,
+        "cal": cal,
+        "current_year": current_year,
+        "time": time,
+        "event_list": event_list,
+        "notifications": notifications,
+        "now": now,  # Optional if you want to use it directly in the template
+    })

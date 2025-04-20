@@ -12,6 +12,6 @@ urlpatterns = [
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Configure Admin Titles
-admin.site.site_header = "My Club Administration Page"
+admin.site.site_header = "My Administration Page"
 admin.site.site_title = "Browser Title"
-admin.site.index_title = "Welcome To The Addmin Area..."
+admin.site.index_title = "Welcome To The Admin Area..."

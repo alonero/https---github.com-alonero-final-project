@@ -14,7 +14,7 @@
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{% url 'list-events' %}">All Jobs</a></li>
             {% if user.is_authenticated %}
-            <li><a class="dropdown-item" href="{% url 'add-event' %}">Add Task</a></li>
+            <li><a class="dropdown-item" href="{% url 'add-event' %}">Add Job</a></li>
             <li><a class="dropdown-item" href="{% url 'my_events' %}">My Jobs</a></li>
             {% endif %}
             <li><a class="dropdown-item" href="{% url 'search_events' %}">Search Jobs</a></li>
@@ -23,19 +23,7 @@
           </ul>
         </li>
 
-
-      <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Tasks
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{% url 'list-venues' %}">All Tasks</a></li>
-            {% if user.is_authenticated %}
-            <li><a class="dropdown-item" href="{% url 'add-venue' %}">Add Task</a></li>
-            {% endif %}
-            
-          </ul>
-        </li>   
+ 
       
       
 
@@ -46,9 +34,9 @@
             Downloads
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{% url 'venue_text' %}">Task Text File</a></li>
-            <li><a class="dropdown-item" href="{% url 'venue_csv' %}">Task CSV File</a></li>
-            <li><a class="dropdown-item" href="{% url 'venue_pdf' %}">Task PDF File</a></li>
+            <li><a class="dropdown-item" href="{% url 'venue_text' %}">Job Text File</a></li>
+            <li><a class="dropdown-item" href="{% url 'venue_csv' %}">Job CSV File</a></li>
+            <li><a class="dropdown-item" href="{% url 'venue_pdf' %}">Job PDF File</a></li>
           </ul>
         </li>
 
@@ -65,9 +53,7 @@
           <a class="nav-link" href="{% url 'logout' %}">Logout</a>
         </li>
       {% else %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'register_user' %}">Register</a>
-        </li>
+        
 
         <li class="nav-item">
           <a class="nav-link" href="{% url 'login' %}">Login</a>
@@ -78,8 +64,6 @@
       <form class="d-flex" method=POST action="{% url 'search-venues' %}">
         {% csrf_token %}
 
-        <input class="form-control me-2" type="search" placeholder="Search Tasks" aria-label="Search" name="searched">
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
       </form>
     </div>
   </div>

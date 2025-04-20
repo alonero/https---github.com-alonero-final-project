@@ -24,16 +24,16 @@ class MyClubUser(models.Model):
 	def __str__(self):
 		return self.first_name + ' ' + self.last_name
 
-
+category = models.CharField(max_length=100, blank=True, null=True)
 class Event(models.Model):
 	name = models.CharField('Event Name', max_length=120)
 	event_date = models.DateTimeField('Event Date')
 	venue = models.ForeignKey(Venue, blank=True, null=True, on_delete=models.CASCADE)
-	#venue = models.CharField(max_length=120)
 	manager = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
 	description = models.TextField(blank=True)
 	attendees = models.ManyToManyField(MyClubUser, blank=True)
 	approved = models.BooleanField('Aprroved', default=False)
+	category = models.CharField(max_length=100, blank=True, null=True)  # ← NEW FIELD
 
 	def __str__(self):
 		return self.name
@@ -48,8 +48,4 @@ class Event(models.Model):
 	@property
 	def Is_Past(self):
 		today = date.today()
-		if self.event_date.date() < today:
-			thing = "Past"
-		else:
-			thing = "Future"
-		return thing
+		return "Past" if self.event_date.date() < today else "Future"

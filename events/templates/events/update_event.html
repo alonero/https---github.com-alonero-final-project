@@ -4,7 +4,7 @@
 {% if user.is_authenticated %}	
 	{% if user == event.manager %}
 
-	<h1>Update Event...</h1>
+	<h1>Update job...</h1>
 	<br/>
 	<form action="" method=POST>
 		{% csrf_token %}
@@ -14,11 +14,11 @@
 
 		{% else %}
 		<h2>Access Denied</h2>
-		<p>Only the event's Manager can update this event...</p>
+		<p>Only the jobs Manager can update this event...</p>
 
 		Logged In User:  {{ user }}
 		<br/>
-		Event Manager: {{ event.manager }}
+		job Manager: {{ event.manager }}
 		<br/>
 		{% endif %}
 
